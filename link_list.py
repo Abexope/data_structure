@@ -196,10 +196,10 @@ class LinkList:
 		if index > self._count:
 			raise Underflow("In remove() method: index is out of range")
 		if index == 0:              # 相当于删除表头元素
-			self.pop()
+			self.pop(get_elem=get_elem)
 			return
 		if index == self._count:    # 相当于在表尾删除元素
-			self.pop_last()
+			self.pop_last(get_elem=get_elem)
 			return
 		
 		# 一般情况
