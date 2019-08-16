@@ -19,6 +19,12 @@ class BaseStructure:
 		
 	def __str__(self):
 		"""自定义链表可视化方法"""
+		
+		# 空表情况
+		if self.is_empty():
+			return "[ -> None]"
+		
+		# 一般情况
 		p = self._head
 		res = ""
 		if self._head is not None:
