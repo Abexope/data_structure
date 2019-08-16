@@ -1,14 +1,16 @@
 """
 链接表模块
 
+继承关系
+	·BaseStructure <- LinkList
 """
 
 from exception import LinkListUnderflow as Underflow
 from obj import LinearNode as Node
 
 
-class LinkList:
-	"""基本单向链表"""
+class BaseStructure:
+	"""基本单向链表接口"""
 	
 	def __init__(self):
 		"""对象构造方法"""
@@ -222,6 +224,92 @@ class LinkList:
 			q.next = p
 			p = q                   # 将刚摘下的节点介入p指向的节点序列
 		self._head = p              # 反转链表完成，将表头指针指向新的表头节点
+
+
+class LinkList(BaseStructure):
+	"""带有表尾指针的单向链表"""
+	
+	def __init__(self):
+		"""对象构造方法"""
+		super(LinkList, self).__init__()
+		self._rear = None           # 增加表尾节点引用域，提高有关表尾操作的效率
+		
+	def prepend(self, elem):
+		"""
+		链表表头插入对象方法
+		:param elem: 待插入对象
+		:return: None
+		"""
+		if self._head is None:      # 空表情况
+			self._head = Node(elem=elem, next_=self._head)
+			self._rear = self._head
+			self._count += 1
+		else:                       # 一般情况
+			self._head = Node(elem=elem, next_=self._head)
+			self._count += 1
+	
+	def append(self, elem):
+		"""
+		链表表尾插入对象方法
+		:param elem: 待插入对象
+		:return: None
+		"""
+		if self._head is None:      # 空表情况
+			self._head = Node(elem=elem, next_=self._head)
+			self._rear = self._head
+			self._count += 1
+		else:                       # 一般情况
+			self._rear.next = Node(elem=elem)
+			self._rear = self._rear.next
+			self._count += 1
+			
+	def pop_last(self, get_elem=False):
+		"""
+		链表表尾删除对象方法
+		:param get_elem:
+			·Python.bool    default:False
+			·是（True）否（False）返回已经删除的表尾对象
+		:return: 已经删除的表尾对象
+		"""
+		
+		# 空表情况
+		if self._head is None:
+			raise Underflow("In pop_last() method: link list object is empty. Nothing can be returned.")
+		
+		p = self._head
+		
+		# 单节点链表情况
+		if p.next is None:
+			e = p.elem
+			self._head = None
+			self._count -= 1
+			if get_elem:
+				return e
+			else:
+				return
+		
+		# 一般情况，使用指针p遍历链表，知道p.next是self._rear指向的对象
+		while p.next.next is not None:
+			p = p.next
+		e = p.next.elem
+		p.next = None
+		self._rear = p
+		self._count -= 1
+		if get_elem:
+			return e
+		else:
+			return
+		
+	def reverse(self):
+		"""链表反转方法"""
+		p = None
+		self._rear = self._head     # 重置表尾指针
+		while self._head is not None:
+			q = self._head
+			self._head = q.next     # 摘下原始首节点
+			q.next = p
+			p = q           # 将刚刚摘下的节点接入指针p指向的节点序列
+		self._head = p      # 链表反转完成，重置表头指针
 
 
 if __name__ == '__main__':
