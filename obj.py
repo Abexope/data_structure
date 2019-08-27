@@ -1,4 +1,9 @@
-"""数据节点定义模块"""
+"""
+数据节点定义模块
+
+继承关系
+	·LinearNode <- DuplexLinearNode
+"""
 
 
 class LinearNode:
@@ -10,3 +15,11 @@ class LinearNode:
 		
 	def __str__(self):
 		return str(self.elem)
+
+
+class DuplexLinearNode(LinearNode):
+	"""带有双向指针的线性节点"""
+
+	def __init__(self, elem, prev=None, next_=None):
+		super(DuplexLinearNode, self).__init__(elem, next_)
+		self.prev = prev
