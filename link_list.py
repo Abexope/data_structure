@@ -2,11 +2,13 @@
 链接表模块
 
 继承关系
-	·BaseStructure <- LinkList
+	·BaseStructure <- LinkList <- DuplexLinkList <- CycleDuplexLinkList
+	·CycleLinkList
 """
 
 from exception import LinkListUnderflow as Underflow
 from obj import LinearNode as Node
+from obj import DuplexLinearNode as DNode
 
 
 class BaseStructure:
@@ -48,7 +50,7 @@ class BaseStructure:
 	
 	def is_empty(self):
 		"""判断链表是否为空"""
-		return self._head is None
+		return (self._head is None) and (self._count == 0)
 	
 	def prepend(self, elem):
 		"""
@@ -69,7 +71,7 @@ class BaseStructure:
 		"""
 		
 		# 空链表情况
-		if self._head is None:
+		if self.is_empty():
 			raise Underflow("In pop() method: link list object is empty. Nothing can be returned.")
 		
 		# 一般情况
@@ -87,7 +89,7 @@ class BaseStructure:
 		"""
 		
 		# 空链表情况
-		if self._head is None:
+		if self.is_empty():
 			self._head = Node(elem=elem)
 			self._count += 1
 			return
@@ -109,7 +111,7 @@ class BaseStructure:
 		"""
 		
 		# 空链表情况
-		if self._head is None:
+		if self.is_empty():
 			raise Underflow("In pop_last() method: link list object is empty. Nothing can be returned.")
 		
 		# 链表中仅有一个元素的情况
@@ -246,7 +248,7 @@ class LinkList(BaseStructure):
 		:param elem: 待插入对象
 		:return: None
 		"""
-		if self._head is None:      # 空表情况
+		if self.is_empty():         # 空表情况
 			self._head = Node(elem=elem, next_=self._head)
 			self._rear = self._head
 			self._count += 1
@@ -260,7 +262,7 @@ class LinkList(BaseStructure):
 		:param elem: 待插入对象
 		:return: None
 		"""
-		if self._head is None:      # 空表情况
+		if self.is_empty():         # 空表情况
 			self._head = Node(elem=elem, next_=self._head)
 			self._rear = self._head
 			self._count += 1
@@ -279,7 +281,7 @@ class LinkList(BaseStructure):
 		"""
 		
 		# 空表情况
-		if self._head is None:
+		if self.is_empty():
 			raise Underflow("In pop_last() method: link list object is empty. Nothing can be returned.")
 		
 		p = self._head
@@ -328,7 +330,7 @@ class CycleLinkList:
 	def __str__(self):
 
 		if self.is_empty():
-			return "[->]"
+			return "[ -> ]"
 
 		p = self._rear.next
 		res = ""
@@ -381,7 +383,7 @@ class CycleLinkList:
 		:return: None
 		"""
 		p = Node(elem=elem)
-		if self._rear is None:  # 空表情况
+		if self.is_empty():     # 空表情况
 			p.next = p
 			self._rear = p
 			self._count += 1
@@ -399,20 +401,15 @@ class CycleLinkList:
 			·是（True）否（False）返回已经删除的表尾对象
 		:return: 已经删除的表尾对象
 		"""
-
-		# 空表情况
-		if self._rear is None:
+		if self.is_empty():     # 空表情况
 			raise Underflow("in pop() method: cycle link list object is empty. Nothing can be returned.")
-
 		p = self._rear.next
-
 		if self._rear is p:     # 单个节点情况
 			self._rear = None
 			self._count -= 1
 		else:                   # 一般情况
 			self._rear.next = p.next
 			self._count -= 1
-
 		if get_elem:
 			return p.elem
 		else:
@@ -426,13 +423,9 @@ class CycleLinkList:
 			·是（True）否（False）返回已经删除的表尾对象
 		:return: 已经删除的表尾对象
 		"""
-
-		# 空表情况
-		if self.is_empty():
+		if self.is_empty():                 # 空表情况
 			raise Underflow("in pop_last() method: cycle link list object is empty. Nothing can be returned.")
-
 		e = self._rear.elem
-
 		if self._rear.next is self._rear:   # 单个节点情况
 			self._rear = None
 			self._count -= 1
@@ -529,5 +522,303 @@ class CycleLinkList:
 			idx, p = idx + 1, p.next
 
 
+class DuplexLinkList(LinkList):
+	"""双向链表"""
+
+	def __init__(self):
+		super(DuplexLinkList, self).__init__()
+
+	def __str__(self):
+		p = self._head
+		if self.is_empty():     # 空表情况
+			return "[None <-> None]"
+		res = "None <-> "        # 一般情况
+		while p:
+			res += "{} <-> ".format(p.elem)
+			p = p.next
+		else:
+			res += "None"
+		return "[{}]".format(res)
+
+	def prepend(self, elem):
+		p = DNode(elem=elem, prev=None, next_=self._head)
+		if self.is_empty():     # 空表情况
+			self._rear = p
+		else:                   # 一般情况
+			p.next.prev = p
+		self._head = p
+		self._count += 1
+
+	def append(self, elem):
+		p = DNode(elem=elem, prev=self._rear, next_=None)
+		if self.is_empty():     # 空表情况
+			self._head = p
+		else:                   # 一般情况，设置next指针
+			p.prev.next = p
+		self._rear = p
+		self._count += 1
+
+	def pop(self, get_elem=False):
+		if self.is_empty():     # 空表情况
+			raise Underflow("in pop() method: Duplex link list object is empty. Nothing can be returned.")
+		e = self._head.elem
+		if self._head is self._rear:    # 单节点链表情况，头指针和尾指针指向同一个元素
+			self._head, self._rear = None, None
+			"""
+			TIP：
+				Python的赋值是“指向性赋值”，因此，如果双链表中只有一个元素的情况下，
+				改变self._head指针指向时，self._rear指针的指向没有改变，
+				因此也需要修改self._rear指针的指向
+			"""
+			self._count -= 1
+			if get_elem:
+				return e
+			else:
+				return
+		# 一般情况
+		self._head = self._head.next
+		self._head.prev = None
+		self._count -= 1
+		if get_elem:
+			return e
+		else:
+			return
+
+	def pop_last(self, get_elem=False):
+		if self.is_empty():     # 空表
+			raise Underflow("in pop_last() method: Duplex link list object is empty. Nothing can be returned.")
+		e = self._rear.elem
+		if self._rear is self._head:    # 单节点情况
+			self._rear, self._head = None, None
+			self._count -= 1
+			if get_elem:
+				return e
+			else:
+				return
+		# 一般情况
+		self._rear = self._rear.prev
+		self._rear.next = None
+		self._count -= 1
+		if get_elem:
+			return e
+		else:
+			return
+
+	def insert(self, index, elem):
+		if index > self._count:
+			raise Underflow("in insert() method: index is out of range.")
+		if index == 0:      # 相当于在表头插入元素
+			self.prepend(elem)
+			return
+		if index == self._count:    # 相当于在表尾插入元素
+			self.append(elem)
+			return
+		# 一般情况
+		if index <= (self._count // 2):   # 前半段插入，利用双向表的特点，插入时间复杂度最大为O(self._count/2)
+			idx, idx_p = 0, self._head
+			while idx_p:    # 一般情况
+				if idx + 1 == index:    # 找到待插入元素的前一个元素的位置
+					p = DNode(elem, idx_p, idx_p.next)  # 生成指针p指向一个新节点对象
+					idx_p.next.prev = p     # idx_p指针指向元素的“原下一个元素”的prev指针指向p
+					idx_p.next = p          # idx_p指针指向元素的“新下一个元素”的next指针指向p
+					self._count += 1
+					return
+				idx, idx_p = idx + 1, idx_p.next
+		else:   # 后半段插入
+			idx, idx_p = self._count - 1, self._rear
+			while idx_p:
+				if idx == index:
+					p = DNode(elem, idx_p.prev, idx_p)
+					idx_p.prev.next = p     # idx_p指针指向元素的“原上一个元素”的next指针指向p
+					idx_p.prev = p          # idx_p指针指向元素的“新上一个元素”的prev指针指向p
+					self._count += 1
+					return
+				idx, idx_p = idx - 1, idx_p.prev
+
+	def remove(self, index, get_elem=False):
+		if index >= self._count:
+			raise Underflow("in remove() method: index is out of range.")
+		if index == 0:
+			self.pop()
+			return
+		if index == self._count - 1:
+			self.pop_last()
+			return
+		if index <= self._count // 2:   # 前半段删除
+			idx, p = 0, self._head
+			while p:
+				if idx + 1 == index:
+					e = p.next
+					p.next = p.next.next
+					p.next.prev = p
+					self._count -= 1
+					return e
+				idx, p = idx + 1, p.next
+		else:                           # 后半段删除
+			idx, p = self._count, self._rear
+			while p:
+				if idx - 2 == index:    # 减2
+					e = p.prev
+					p.prev = p.prev.prev
+					p.prev.next = p
+					self._count -= 1
+					return e
+				idx, p = idx - 1, p.prev
+
+
+class CycleDuplexLinkList(DuplexLinkList):
+	"""循环双向链表"""
+
+	def __init__(self):
+		super(CycleDuplexLinkList, self).__init__()
+
+	def __str__(self):
+		if self.is_empty():
+			return "[ <-> ]"
+		p = self._head
+		res = " <-> "
+		if self._head is not None:
+			while p is not self._rear:
+				res += "{} <-> ".format(p.elem)
+				p = p.next
+			else:
+				res += "{} <->".format(p.elem)
+		return "[{}]".format(res)
+
+	def __iter__(self):
+		p = self._rear.next
+		while p is not self._rear:
+			yield p.elem
+			p = p.next
+		else:   # 同理 __str__() 中的 while-else 用法
+			yield p.elem
+
+	def is_empty(self):
+		return (self._head is None and self._rear is None) and (self._count == 0)
+
+	def prepend(self, elem):
+		p = DNode(elem=elem, prev=self._rear, next_=self._head)
+		if self.is_empty():         # 空表
+			self._rear = p
+			p.prev = self._rear
+			p.next = p
+		else:
+			p.prev.next = p
+			self._head.prev = p     # 头部的prev指针指向新的头节点
+		self._head = p
+		self._count += 1
+
+	def append(self, elem):
+		p = DNode(elem=elem, prev=self._rear, next_=self._head)
+		if self.is_empty():         # 空表
+			self._head = p
+			p.next = self._head
+			p.prev = p
+		else:
+			p.next.prev = p
+			self._rear.next = p     # 尾部的next指针指向新的尾节点
+		self._rear = p
+		self._count += 1
+
+	def pop(self, get_elem=False):
+		if self.is_empty():
+			raise Underflow("in pop() method: cycle duplex link list is empty. Nothing can be returned.")
+		e = self._head.elem
+		if self._head is self._rear:    # 单节点链表情况
+			self._head, self._rear = None, None
+		else:                           # 一般情况
+			self._head = self._head.next
+			self._rear.next = self._head
+			self._head.prev = self._rear
+		self._count -= 1
+		if get_elem:
+			return e
+		else:
+			return
+
+	def pop_last(self, get_elem=False):
+		if self.is_empty():
+			raise Underflow("in pop_last() method: cycle duplex link list is empty. Nothing can be returned.")
+		e = self._rear.elem
+		if self._rear is self._head:    # 单节点情况
+			self._rear, self._head = None, None
+		else:                           # 一般情况
+			self._rear = self._rear.prev
+			self._head.prev = self._rear
+			self._rear.next = self._head
+		self._count -= 1
+		if get_elem:
+			return e
+		else:
+			return
+
+	def insert(self, index, elem):
+		if index > self._count:
+			raise Underflow("in insert() method: index is out of range.")
+		if index == 0:  # 相当于在表头插入元素
+			self.prepend(elem)
+			return
+		if index == self._count:     # 相当于在表尾插入元素
+			self.append(elem)
+			return
+		if index <= (self._count // 2):   # 前半段插入，利用双向表的特点，插入时间复杂度最大为O(self._count/2)
+			idx, idx_p = 0, self._head
+			while idx_p:    # 一般情况
+				if idx + 1 == index:    # 找到待插入元素的前一个元素的位置
+					p = DNode(elem=elem, prev=idx_p, next_=idx_p.next)  # 生成指针p指向一个新节点对象
+					idx_p.next.prev = p     # idx_p指针指向元素的“原下一个元素”的prev指针指向p
+					idx_p.next = p          # idx_p指针指向元素的“新下一个元素”的next指针指向p
+					self._count += 1
+					return
+				idx, idx_p = idx + 1, idx_p.next
+		else:   # 后半段插入
+			idx, idx_p = self._count - 1, self._rear
+			while idx_p:
+				if idx == index:
+					p = DNode(elem=elem, prev=idx_p, next_=idx_p.next)
+					idx_p.prev.next = p     # idx_p指针指向元素的“原上一个元素”的next指针指向p
+					idx_p.prev = p          # idx_p指针指向元素的“新上一个元素”的prev指针指向p
+					self._count += 1
+					return
+				idx, idx_p = idx - 1, idx_p.prev
+
+	def remove(self, index, get_elem=False):
+		if index >= self._count:
+			raise Underflow("in remove() method: index is out of range.")
+		if index == 0:
+			self.pop()
+			return
+		if index == self._count - 1:
+			self.pop_last()
+			return
+		if index <= self._count // 2:  # 前半段删除
+			idx, p = 0, self._head
+			while p:
+				if idx + 1 == index:
+					e = p.next
+					p.next = p.next.next
+					p.next.prev = p
+					self._count -= 1
+					if get_elem:
+						return e
+					else:
+						return
+				idx, p = idx + 1, p.next
+		else:  # 后半段删除
+			idx, p = self._count, self._rear
+			while p:
+				if idx - 2 == index:  # 减2
+					e = p.prev
+					p.prev = p.prev.prev
+					p.prev.next = p
+					self._count -= 1
+					if get_elem:
+						return e
+					else:
+						return
+				idx, p = idx - 1, p.prev
+
+
 if __name__ == '__main__':
+
 	pass
