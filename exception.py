@@ -4,3 +4,13 @@
 class LinkListUnderflow(ValueError):
 	"""链表异常"""
 	pass
+
+
+class StackUnderflow(ValueError):
+	"""栈下溢（空栈访问）"""
+	pass
+
+
+class QueueUnderflow(ValueError):
+	"""出队异常"""
+	pass

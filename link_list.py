@@ -241,6 +241,9 @@ class LinkList(BaseStructure):
 		"""对象构造方法"""
 		super(LinkList, self).__init__()
 		self._rear = None           # 增加表尾节点引用域，提高有关表尾操作的效率
+
+	def is_empty(self):
+		return (self._head is None) and (self._rear is None) and (self._count == 0)
 		
 	def prepend(self, elem):
 		"""
