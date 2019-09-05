@@ -3,6 +3,7 @@
 
 继承关系
 	·LinearNode <- DuplexLinearNode
+	·BinaryNode
 """
 
 
@@ -23,3 +24,15 @@ class DuplexLinearNode(LinearNode):
 	def __init__(self, elem, prev=None, next_=None):
 		super(DuplexLinearNode, self).__init__(elem, next_)
 		self.prev = prev
+
+
+class BinaryNode:
+	"""二叉节点"""
+
+	def __init__(self, elem, left=None, right=None):
+		self.elem = elem
+		self.left = left
+		self.right = right
+
+	def __str__(self):
+		return str(self.elem)
