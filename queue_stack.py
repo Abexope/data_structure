@@ -16,7 +16,7 @@ class Queue:
 
 	def is_empty(self):
 		"""判断队列是否为空"""
-		return (self._head is None) and (self._rear is None) and (self._count == 0)
+		return self._count == 0
 
 	def peek(self):
 		"""返回栈顶元素"""
@@ -59,7 +59,7 @@ class Stack:
 
 	def is_empty(self):
 		"""判断栈是否为空"""
-		return (self._top is None) and (self._depth == 0)
+		return self._depth == 0
 
 	def get_depth(self):
 		"""获取栈深度"""
