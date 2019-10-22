@@ -14,3 +14,8 @@ class StackUnderflow(ValueError):
 class QueueUnderflow(ValueError):
 	"""出队异常"""
 	pass
+
+
+class PriorQueueError(ValueError):
+	"""优先队列异常"""
+	pass
