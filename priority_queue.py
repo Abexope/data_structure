@@ -110,29 +110,60 @@ class PriorQue2:
 			self.siftdown(self._elems[i], i, end)
 
 
-def heap_sort(elems):
+def heap_sort(elems, reverse=False):
 	"""堆排序"""
-	def siftdown(elems, e, begin, end):
-		i, j = begin, begin * 2 + 1
-		while j < end:
-			if j + 1 < end and elems[j + 1] < elems[j]:
-				j += 1
-			if e < elems[j]:
-				break
-			elems[i] = elems[j]
-			i, j = j, 2 * j + 1
-			print(elems)
-		elems[i] = e
-	end = len(elems)
-	for i in range(end // 2, -1, -1):
-		siftdown(elems, elems[i], i, end)
-		print(i, elems)
-	print(elems)
-	for i in range((end - 1), 0, -1):
-		e = elems[i]
-		elems[i] = elems[0]
-		siftdown(elems, e, 0, i)
-		print(i, elems)
+	if not reverse:
+		def siftdown(elems, e, begin, end):
+			"""大顶堆"""
+			i, j = begin, begin * 2 + 1
+			while j < end:
+				if j + 1 < end and elems[j + 1] > elems[j]:
+					j += 1
+				if e > elems[j]:
+					break
+				elems[i] = elems[j]
+				i, j = j, 2 * j + 1
+			elems[i] = e
+		end = len(elems)
+		for i in range(end // 2, -1, -1):
+			siftdown(elems, elems[i], i, end)
+		for i in range((end - 1), 0, -1):
+			e = elems[i]
+			elems[i] = elems[0]
+			siftdown(elems, e, 0, i)
+	else:
+		def siftdown(elems, e, begin, end):
+			"""小顶堆"""
+			i, j = begin, begin * 2 + 1
+			while j < end:
+				if j + 1 < end and elems[j + 1] < elems[j]:
+					j += 1
+				if e < elems[j]:
+					break
+				elems[i] = elems[j]
+				i, j = j, 2 * j + 1
+			elems[i] = e
+		end = len(elems)
+		for i in range(end // 2, -1, -1):
+			siftdown(elems, elems[i], i, end)
+		for i in range((end - 1), 0, -1):
+			e = elems[i]
+			elems[i] = elems[0]
+			siftdown(elems, e, 0, i)
+
+
+def siftdown(elems, e, begin, end):
+	"""小顶堆"""
+	i, j = begin, begin * 2 + 1
+	while j < end:
+		if j + 1 < end and elems[j + 1] < elems[j]:
+			j += 1
+		if e < elems[j]:
+			break
+		elems[i] = elems[j]
+		i, j = j, 2 * j + 1
+		print(i, j, elems)
+	elems[i] = e
 
 
 if __name__ == '__main__':
@@ -145,5 +176,7 @@ if __name__ == '__main__':
 	# print(pq.dequeue())
 	# print(pq)
 	a = [64, 5, 3, 2, 21, 100]
-	heap_sort(a)
+	for i in range(5, -1, -1):
+		siftdown(a, a[i], i, 6)
+	# heap_sort(a)
 	print(a)
