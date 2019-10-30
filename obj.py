@@ -36,3 +36,16 @@ class BinaryNode:
 
 	def __str__(self):
 		return str(self.elem)
+
+
+class BinaryNode2:
+	"""带有父节点引用的二叉节点"""
+
+	def __init__(self, elem, parent=None, left=None, right=None):
+		self.elem = elem
+		self.parent = parent
+		self.right = right
+		self.left = left
+
+	def __str__(self):
+		return str(self.elem)
