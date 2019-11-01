@@ -116,9 +116,67 @@ class GraphAL(Graph):
 		return self._mat[vi]
 
 
+def dfs_graph(graph, v0):
+	"""深度优先图遍历"""
+	from queue_stack import Stack
+	vnum = graph.vertex_num()
+	visited = [0] * vnum        # visited 记录已访问顶点
+	visited[v0] = 1
+	DFS_seq = [v0]              # DFS_seq 记录遍历序列
+	st = Stack()
+	st.push((0, graph.out_edges(v0)))       # 入栈 (i, edges)
+	while not st.is_empty():    # 下次访问边edges[i]
+		i, edges = st.pop()
+		if i < len(edges):
+			v, e = edges[i]
+			st.push((i + 1, edges))     # 下次回来访问边edges[i+1]
+			if not visited[v]:
+				DFS_seq.append(v)
+				visited[v] = 1
+				st.push((0, graph.out_edges(v)))
+	return DFS_seq
+
+
+def bfs_graph(graph, v0):
+	"""宽度优先图遍历"""
+	from queue_stack import Queue
+	vnum = graph.vertex_num()
+	visited = [0] * vnum
+	visited[v0] = 1
+	BFS_seq = [v0]
+	qu = Queue()
+	qu.enqueue((0, graph.out_edges(v0)))        # 入队 (i, edges)
+	while not qu.is_empty():
+		i, edges = qu.dequeue()
+		if i < len(edges):
+			v, e = edges[i]
+			qu.enqueue((i + 1, edges))
+			if not visited[v]:
+				BFS_seq.append(v)
+				visited[v] = 1
+				qu.enqueue((0, graph.out_edges(v)))
+	return BFS_seq
+
+
 if __name__ == '__main__':
-	graph_al = GraphAL([])
-	for ii in range(10):
-		graph_al.add_vertex()
-		graph_al.add_edge(ii, 0, val=13)
-	print(graph_al)
+	# G7图
+	graph_al_7 = GraphAL([])
+	for _ in range(7):
+		graph_al_7.add_vertex()
+	graph_al_7.add_edge(0, 2)
+	graph_al_7.add_edge(0, 3)
+	graph_al_7.add_edge(1, 0)
+	graph_al_7.add_edge(1, 2)
+	graph_al_7.add_edge(1, 5)
+	graph_al_7.add_edge(2, 1)
+	graph_al_7.add_edge(2, 4)
+	graph_al_7.add_edge(3, 4)
+	graph_al_7.add_edge(4, 6)
+	graph_al_7.add_edge(5, 6)
+	print(graph_al_7)
+	bfs_seq = bfs_graph(graph_al_7, 0)
+	dfs_seq = dfs_graph(graph_al_7, 0)
+	print("宽度优先遍历：", bfs_seq)
+	print("深度优先遍历：", dfs_seq)
+	print()
+
