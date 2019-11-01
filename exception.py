@@ -19,3 +19,8 @@ class QueueUnderflow(ValueError):
 class PriorQueueError(ValueError):
 	"""优先队列异常"""
 	pass
+
+
+class GraphError(ValueError):
+	"""图结构异常"""
+	pass
