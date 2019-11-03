@@ -185,8 +185,69 @@ def bfs_graph(graph, v0):
 	return BFS_seq
 
 
-if __name__ == '__main__':
+def dfs_span_forest(graph):
+	"""DFS生成树，递归法"""
+	vnum = graph.vertex_num()
+	span_forest = [None] * vnum     # 记录顶点是否被找到
 
+	def dfs(graph, v):
+		"""递归遍历函数，在递归中记录经由边"""
+		nonlocal span_forest    # 声明 span_forest 是 nonlocal 变量
+		for u, w in graph.out_edges(v):
+			if span_forest[u] is None:
+				span_forest[u] = (v, w)
+				dfs(graph, u)
+
+	for v in range(vnum):
+		if span_forest[v] is None:
+			span_forest[v] = (v, 0)
+			dfs(graph, v)
+	return span_forest
+
+
+def kruskal(graph):
+	"""构造最小生成树的Kruskal算法"""
+	vnum = graph.vertex_num()
+	reps = [i for i in range(vnum)]     # 储存顶点编号，作为表示两点是否连通的代表元
+	mst, edges = [], []                 # mst保存最小生成树(林)，edges保存升序排列的边
+	for vi in range(vnum):              # 所有的边加入表edges
+		for vj, w in graph.out_edges(vi):
+			edges.append((w, vi, vj))    # 保存(权值，出点，入点)
+	edges.sort()                        # 边按权值排序，O(n log n)时间
+	for w, vi, vj in edges:
+		if reps[vi] != reps[vj]:        # 两端点属于不同连通分量
+			mst.append(((vi, vj), w))     # 记录这条边
+			if len(mst) == vnum - 1:        # 如果已经构造了 |V| - 1 条边，构造完成
+				break
+			rep, orep = reps[vi], reps[vj]
+			for i in range(vnum):       # 合并连通分量，统一代表元
+				if reps[i] == orep:
+					reps[i] = rep
+	return mst
+
+
+def prim(graph):
+	"""构造最小生成树的Prim算法"""
+	from priority_queue import PriorQue2
+	from priority_queue import PriorQue
+	vnum = graph.vertex_num()
+	mst = [None] * vnum
+	cands = PriorQue2([(0, 0, 0)])              # 使用优先队列记录侯选边 (w, vi, vj)
+	count = 0
+	while count < vnum and not cands.is_empty():
+		w, u, v = cands.dequeue()               # 取出当前的最短边
+		if mst[v]:
+			continue                           # 邻接顶点 v 已在 mst 中，继续
+		mst[v] = ((u, v), w)                   # 记录新的MST边和顶点
+		count += 1
+		for vi, w in graph.out_edges(v):        # 考虑 v 的邻接点 vi
+			if not mst[vi]:                     # 如果 vi 不在 mst 中则这条边是侯选边
+				cands.enqueue((w, v, vi))
+	return mst
+
+
+if __name__ == '__main__':
+	"""
 	# G7图
 	graph_al_7 = GraphAL([])
 	for _ in range(7):
@@ -202,12 +263,15 @@ if __name__ == '__main__':
 	graph_al_7.add_edge(4, 6)
 	graph_al_7.add_edge(5, 6)
 	print(graph_al_7)
-	bfs_seq = bfs_graph(graph_al_7, 0)
-	dfs_seq = dfs_graph(graph_al_7, 0)
-	print("宽度优先遍历：", bfs_seq)
-	print("深度优先遍历：", dfs_seq)
+	# bfs_seq = bfs_graph(graph_al_7, 0)
+	# dfs_seq = dfs_graph(graph_al_7, 0)
+	# print("宽度优先遍历：", bfs_seq)
+	# print("深度优先遍历：", dfs_seq)
 	print()
-
+	sf = dfs_span_forest(graph_al_7)
+	print(sf)
+	"""
+	"""
 	# G8图
 	graph8 = GraphAL()
 	for _ in range(7):
@@ -231,3 +295,28 @@ if __name__ == '__main__':
 	dfs_seq = dfs_graph(graph8, 0)
 	print("宽度优先遍历：", bfs_seq)
 	print("深度优先遍历：", dfs_seq)
+	"""
+
+	# G9图
+	graph9 = GraphAL([])
+	for _ in range(7):
+		graph9.add_vertex()
+	for ver in [(1, 5), (2, 11), (3, 5)]:
+		graph9.add_edge(0, ver[0], val=ver[1])
+	for ver in [(0, 5), (3, 3), (4, 9), (6, 7)]:
+		graph9.add_edge(1, ver[0], val=ver[1])
+	for ver in [(0, 11), (3, 7), (5, 6)]:
+		graph9.add_edge(2, ver[0], val=ver[1])
+	for ver in [(0, 5), (1, 3), (2, 7), (6, 20)]:
+		graph9.add_edge(3, ver[0], val=ver[1])
+	for ver in [(1, 9), (6, 8)]:
+		graph9.add_edge(4, ver[0], val=ver[1])
+	for ver in [(2, 6), (6, 8)]:
+		graph9.add_edge(5, ver[0], val=ver[1])
+	for ver in [(1, 7), (3, 20), (4, 8), (5, 8)]:
+		graph9.add_edge(6, ver[0], val=ver[1])
+	print(graph9)
+	kr = kruskal(graph9)    # Kruskal算法
+	print(kr)
+	pr = prim(graph9)       # Prim算法
+	print(pr)
