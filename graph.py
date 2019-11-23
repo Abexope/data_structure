@@ -246,6 +246,26 @@ def prim(graph):
 	return mst
 
 
+def dijkstra_shortest_paths(graph, v0):
+	"""dijkstra算法"""
+	from priority_queue import PriorQue2
+	vnum = graph.vertex_num()
+	assert 0 <= v0 < vnum
+	paths = [None] * vnum
+	count = 0
+	cands = PriorQue2([(0, v0, v0)])    # 初始队列
+	while count < vnum and not cands.is_empty():
+		plen, u, vmin = cands.dequeue()     # 取路径最短顶点
+		if paths[vmin]:         # 如果最短路径已知则继续
+			continue
+		paths[vmin] = (u, plen)     # 记录新确定的最短路径
+		for v, w in graph.out_edges(vmin):     # 考察经由新U顶点的路径
+			if not paths[v]:
+				cands.enqueue((plen + w, vmin, v))
+		count += 1
+	return paths
+
+
 if __name__ == '__main__':
 	"""
 	# G7图
@@ -296,7 +316,7 @@ if __name__ == '__main__':
 	print("宽度优先遍历：", bfs_seq)
 	print("深度优先遍历：", dfs_seq)
 	"""
-
+	"""
 	# G9图
 	graph9 = GraphAL([])
 	for _ in range(7):
@@ -320,3 +340,21 @@ if __name__ == '__main__':
 	print(kr)
 	pr = prim(graph9)       # Prim算法
 	print(pr)
+	"""
+	graph10 = GraphAL([])
+	for _ in range(7):
+		graph10.add_vertex()
+	for ver in [(1, 2), (3, 5)]:
+		graph10.add_edge(0, ver[0], val=ver[1])
+	for ver in [(4, 6)]:
+		graph10.add_edge(1, ver[0], val=ver[1])
+	for ver in [(0, 11), (3, 4), (5, 4)]:
+		graph10.add_edge(2, ver[0], val=ver[1])
+	for ver in [(2, 3), (5, 7), (4, 2)]:
+		graph10.add_edge(3, ver[0], val=ver[1])
+	for ver in [(6, 2)]:
+		graph10.add_edge(4, ver[0], val=ver[1])
+	for ver in [(6, 3)]:
+		graph10.add_edge(5, ver[0], val=ver[1])
+	dij = dijkstra_shortest_paths(graph10, 0)    # Dijkstra算法
+	print(dij)
