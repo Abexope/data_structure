@@ -49,3 +49,11 @@ class BinaryNode2:
 
 	def __str__(self):
 		return str(self.elem)
+
+
+class AVLNode(BinaryNode):
+	"""AVL树节点"""
+	
+	def __init__(self, elem):
+		super(AVLNode, self).__init__(elem)
+		self.bf = 0     # 平衡因子（balance factor, BF）取值范围：{-1，0，1}
