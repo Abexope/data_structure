@@ -1,4 +1,4 @@
-"""排序算法"""
+"""线性表的排序算法"""
 from random import randint, seed
 seed(100)
 
