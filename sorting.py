@@ -112,9 +112,20 @@ def merge_sort(alist: list):
 	return res
 
 
+def gnome_sort(alist: list):
+	"""侏儒排序"""
+	i = 0
+	while i < len(alist):
+		if i == 0 or alist[i - 1] <= alist[i]:
+			i += 1
+		else:
+			alist[i], alist[i - 1] = alist[i - 1], alist[i]
+			i -= 1
+
+
 if __name__ == '__main__':
 	a = [19, 59, 34, 62, 23, 81, 51, 94, 45, 56, 7]
 	print(a)
-	quick_sort(a, 0, len(a) - 1)
+	gnome_sort(a)
 	print(a)
 	print(merge_sort(a))
